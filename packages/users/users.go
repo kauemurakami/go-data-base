@@ -2,6 +2,7 @@ package users
 
 import (
 	j "encoding/json"
+	"fmt"
 	db_config "godb/db/config"
 	"io"
 	"log"
@@ -34,6 +35,49 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	u_json, e := j.Marshal(user)
 	if e != nil {
 		log.Fatalf("Erro ao retornar usuário")
+	}
+	w.Write(u_json)
+}
+
+func GetUsers(w http.ResponseWriter, r *http.Request) {
+	var users *[]User
+	db_config.DB.Find(&users)
+	u_json, e := j.Marshal(users)
+	if e != nil {
+		log.Fatalf("Erro ao retornar usuários")
+	}
+	w.Write(u_json)
+}
+
+func GetUserById(w http.ResponseWriter, r *http.Request) {
+	var user *User
+	id := r.URL.Query().Get("id")
+	fmt.Println(id)
+
+	db_config.DB.First(&user, id)
+	u_json, e := j.Marshal(user)
+	if e != nil {
+		log.Fatalf("Erro ao retornar usuários")
+	}
+	w.Write(u_json)
+}
+
+func DeleteUserById(w http.ResponseWriter, r *http.Request) {
+	var user *User
+	db_config.DB.First(&user, r.URL.Query())
+	u_json, e := j.Marshal(user)
+	if e != nil {
+		log.Fatalf("Erro ao retornar usuários")
+	}
+	w.Write(u_json)
+}
+
+func UpdateUserById(w http.ResponseWriter, r *http.Request) {
+	var users *User
+	db_config.DB.Find(&users)
+	u_json, e := j.Marshal(users)
+	if e != nil {
+		log.Fatalf("Erro ao retornar usuários")
 	}
 	w.Write(u_json)
 }

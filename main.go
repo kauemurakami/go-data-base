@@ -19,6 +19,10 @@ func main() {
 	//router
 	router := mux.NewRouter()
 	router.HandleFunc("/users", users.CreateUser).Methods(http.MethodPost)
+	router.HandleFunc("/users", users.GetUsers).Methods(http.MethodGet)
+	router.HandleFunc("/users/{id}", users.GetUserById).Methods(http.MethodGet)
+	router.HandleFunc("/users/{id}", users.DeleteUserById).Methods(http.MethodGet)
+	router.HandleFunc("/users/{id}", users.UpdateUserById).Methods(http.MethodGet)
 
 	fmt.Println("Listenning port 3000")
 	log.Fatal(http.ListenAndServe(":3000", router))
