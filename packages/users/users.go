@@ -2,9 +2,9 @@ package users
 
 import (
 	j "encoding/json"
-	"fmt"
 	db_config "godb/db/config"
 	"io"
+	"log"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -22,15 +22,18 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Error with received datas"))
 		return //stop execution
 	}
-	var user User
+	var user *User
 
 	if err = j.Unmarshal(body, &user); err != nil {
 		w.Write([]byte("Convert error json to struct"))
 		return
 	}
-	u := db_config.DB.Create(&user)
-	aaa := db_config.DB.Select("id", "name", "email")
-	fmt.Println(u)
-	fmt.Println(aaa)
-	// return
+
+	db_config.DB.Create(user)
+
+	u_json, e := j.Marshal(user)
+	if e != nil {
+		log.Fatalf("Erro ao retornar usuário")
+	}
+	w.Write(u_json)
 }
