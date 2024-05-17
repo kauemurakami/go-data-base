@@ -3,6 +3,7 @@ package users
 import (
 	j "encoding/json"
 	"errors"
+	"fmt"
 	http_error "godb/core/errors"
 	db_config "godb/db/config"
 	"io"
@@ -91,25 +92,35 @@ func GetUserById(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteUserById(w http.ResponseWriter, r *http.Request) {
-	id := mux.Vars(r)["id"]
-
-	result := db_config.DB.Where("id = ?", id).Delete(&User{})
-	if result.Error != nil || result.RowsAffected == 0 {
-		// Se ocorrer um erro ou nenhuma linha for afetada, retornar false com status BadRequest
-		jsonError, _ := j.Marshal(map[string]bool{"success": false})
-
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(jsonError)
+	id, _ := uuid.Parse(mux.Vars(r)["id"])
+	fmt.Println(id)
+	user := User{ID: id}
+	result := db_config.DB.Unscoped().Where("id = ?", id).Delete(&user)
+	// result := db_config.DB.Delete(&user)
+	// result := db_config.DB.Where("id = ?", id).Delete(&user)
+	if result.Error != nil {
+		// Se ocorrer um erro, retornar um status de erro interno com uma mensagem de erro
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(http_error.ResponseError("Erro interno ao excluir usuário"))
 		return
 	}
+	if result.RowsAffected == 0 {
+		// Se nenhuma linha for afetada, retornar um status de não encontrado com uma mensagem adequada
+		w.WriteHeader(http.StatusNotFound)
+		w.Write(http_error.ResponseError("Usuário não encontrado"))
+		return
+	}
+
 	// Se a exclusão for bem-sucedida, retornar true com status OK
 	jsonSuccess, err := j.Marshal(map[string]bool{"success": true})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(http_error.ResponseError("Erro interno, favor tente novamente ou contate o suporte"))
+		w.Write(http_error.ResponseError("Erro interno ao serializar a resposta"))
+		return
 	}
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonSuccess)
+
 }
 
 func UpdateUserById(w http.ResponseWriter, r *http.Request) {
