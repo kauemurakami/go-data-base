@@ -13,11 +13,12 @@ func init() {
 
 }
 
-func Migrations(db *gorm.DB) {   
+func Migrations(db *gorm.DB) {
 	db.AutoMigrate(
 		users.User{},
 		categories.Category{},
 		product.Product{},
 		sales.Sale{},
+		sales.SaleProduct{},
 	)
 }
