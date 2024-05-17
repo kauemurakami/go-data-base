@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	env_config "godb/core/config"
 	"godb/core/middlewares"
 	"godb/core/routes"
 	db_config "godb/db/config"
@@ -13,6 +14,8 @@ import (
 )
 
 func main() {
+	//setup env
+	env_config.SetupEnv()
 	//start db
 	db := db_config.StartConfig()
 	//migrations
