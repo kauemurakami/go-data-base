@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"godb/core/middlewares"
+	"godb/core/routes"
 	db_config "godb/db/config"
 	"godb/db/migrations"
-	"godb/packages/users"
 	"log"
 	"net/http"
 
@@ -18,11 +19,10 @@ func main() {
 	migrations.Migrations(db)
 	//router
 	router := mux.NewRouter()
-	router.HandleFunc("/users", users.CreateUser).Methods(http.MethodPost)
-	router.HandleFunc("/users", users.GetUsers).Methods(http.MethodGet)
-	router.HandleFunc("/users/{id}", users.GetUserById).Methods(http.MethodGet)
-	router.HandleFunc("/users/{id}", users.DeleteUserById).Methods(http.MethodGet)
-	router.HandleFunc("/users/{id}", users.UpdateUserById).Methods(http.MethodGet)
+	//middleware set content type
+	router.Use(middlewares.JSONContentTypeMiddleware)
+	//Setup app all routes
+	routes.SetupAppRoutes(router)
 
 	fmt.Println("Listenning port 3000")
 	log.Fatal(http.ListenAndServe(":3000", router))
